@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard – NeuroSole</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+<header class="bg-blue-600 text-white py-3 text-center text-2xl font-semibold">
+  🩺 NeuroSole Admin Dashboard
+</header>
+
+<div class="p-6">
+  <h2 class="text-xl font-semibold mb-4">👤 Registered Users</h2>
+  <table class="w-full bg-white rounded-lg shadow">
+    <tr class="bg-blue-100 text-left">
+      <th class="p-2">ID</th>
+      <th class="p-2">Name</th>
+      <th class="p-2">Email</th>
+      <th class="p-2">Signup Time</th>
+      <th class="p-2">Location</th>
+      <th class="p-2">Actions</th>
+    </tr>
+    {% for u in users %}
+    <tr class="border-b">
+      <td class="p-2">{{ u.id }}</td>
+      <td class="p-2">{{ u.name }}</td>
+      <td class="p-2">{{ u.email }}</td>
+      <td class="p-2">{{ u.signup_time.strftime('%d %b %Y, %I:%M %p') }}</td>
+      <td class="p-2">
+        {% if u.latitude and u.longitude %}
+          <a href="https://www.google.com/maps?q={{u.latitude}},{{u.longitude}}" 
+             target="_blank" class="text-blue-600 underline">View on Map</a>
+        {% else %}
+          <span class="text-gray-400">Not available</span>
+        {% endif %}
+      </td>
+      <td class="p-2">
+        <form action="/admin/delete_user/{{ u.id }}" method="POST" onsubmit="return confirm('Delete {{ u.email }}?')">
+          <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+<footer class="text-center text-gray-500 text-sm py-4">
+  Made with ☕ and ❤️ by Soumyo Mukherjee | NeuroSole © 2025
+</footer>
+
+</body>
+</html>

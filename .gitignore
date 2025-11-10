@@ -1,0 +1,14 @@
+# Virtual environments
+tfenv/
+venv/
+
+# Cache & build folders
+__pycache__/
+instance/
+*.pyc
+
+# Uploads & temp files
+static/uploads/
+
+# Environment & secrets
+.env

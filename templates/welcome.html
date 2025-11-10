@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome to NeuroSole</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    body { display: flex; justify-content: center; align-items: center; height: 100vh; transition: background 0.5s; }
+    .fade-in { animation: fadeIn 1.5s ease-in-out; }
+    @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+  </style>
+</head>
+<body class="fade-in bg-gray-100 dark:bg-gray-900 text-center">
+  <div>
+    <h1 class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">NeuroSole</h1>
+    <p class="text-gray-700 dark:text-gray-300">An Eternal Project by Soumyo Mukherjee</p>
+  </div>
+
+  <script>
+    setTimeout(() => { window.location.href = '/login'; }, 1500);
+  </script>
+</body>
+
+</html>

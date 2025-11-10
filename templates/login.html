@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login – NeuroSole</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at bottom right, #0f172a 0%, #1e293b 100%);
+      color: white;
+    }
+    .glass {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 30px rgba(0,0,0,0.25);
+    }
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+  </style>
+</head>
+
+<body class="flex items-center justify-center h-screen">
+
+
+
+  <!-- Animated Background -->
+  <canvas id="heartbeatCanvas"></canvas>
+
+  <!-- Login Card -->
+  <div class="glass p-8 rounded-3xl text-center w-96 animate-fadeIn">
+    <h1 class="text-3xl font-bold text-blue-200 mb-2">Welcome Back 👋</h1>
+    <p class="text-sm text-blue-300 mb-6">Your steps toward healing start again here.</p>
+
+    <form method="POST" action="/login" class="space-y-3">
+      <input name="email" type="email" placeholder="Email" required class="w-full px-3 py-2 rounded-lg text-gray-800" />
+      <input name="password" type="password" placeholder="Password" required class="w-full px-3 py-2 rounded-lg text-gray-800" />
+      <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded-lg transition">
+        Login
+      </button>
+    </form>
+    <p class="mt-3 text-sm">
+  <a href="/forgot" class="underline text-blue-300">Forgot Password?</a>
+</p>
+
+
+    <p class="mt-4 text-sm">
+      New here? <a href="/signup" class="underline text-blue-300">Sign up</a>
+    </p>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="mt-3 text-yellow-200 text-sm">{{ messages[0] }}</div>
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Heartbeat Wave Animation -->
+  <script>
+    const canvas = document.getElementById('heartbeatCanvas');
+    const ctx = canvas.getContext('2d');
+    let w, h, t = 0;
+
+    function resize() {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+      ctx.strokeStyle = 'rgba(80,180,255,0.4)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      const centerY = h / 2;
+      const amp = 40;
+      const length = w;
+      for (let x = 0; x < length; x++) {
+        const y = centerY + Math.sin((x + t) * 0.02) * amp * Math.sin((x + t) * 0.003);
+        ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      // pulse glow
+      const glowX = (t * 2) % w;
+      ctx.beginPath();
+      ctx.arc(glowX, centerY, 8, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0,200,255,0.8)';
+      ctx.fill();
+
+      t += 1.5;
+      requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+    draw();
+  </script>
+
+
+</body>
+</html>
+
+

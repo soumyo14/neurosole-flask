@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NeuroSole Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="icon" href="{{ url_for('static', filename='logo.png') }}">
+  <style>
+    body {
+      background: radial-gradient(circle at top right, #e0f2fe, #f8fafc, #e0f7fa);
+      overflow-x: hidden;
+      font-family: 'Inter', sans-serif;
+      position: relative;
+      min-height: 100vh;
+    }
+
+    /* Floating gradient orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.4;
+      animation: float 10s infinite ease-in-out alternate;
+      z-index: 0;
+    }
+    .orb1 { width: 350px; height: 350px; background: #3b82f6; top: -60px; left: -80px; animation-delay: 0s; }
+    .orb2 { width: 300px; height: 300px; background: #06b6d4; bottom: -80px; right: -60px; animation-delay: 2s; }
+
+    @keyframes float {
+      0% { transform: translateY(0px) scale(1); }
+      100% { transform: translateY(40px) scale(1.1); }
+    }
+
+    /* Glass panel */
+    .glass {
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Fade-in animation */
+    .fade-in { animation: fadeIn 1s ease-in-out; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Button hover glow */
+    .glow:hover {
+      box-shadow: 0 0 20px rgba(59,130,246,0.4);
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+
+<body class="text-gray-800">
+
+  <!-- Floating orbs -->
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+
+  <!-- Header -->
+  <header class="z-10 relative text-center py-8 fade-in">
+    <h1 class="text-4xl font-bold text-blue-700 flex items-center justify-center space-x-2">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="logo" class="h-10 w-10 animate-bounce">
+      <span>NeuroSole Dashboard</span>
+    </h1>
+    <p class="mt-2 text-blue-800 font-medium">👤 {{ user }} 
+      <a href="/logout" class="text-blue-600 hover:underline ml-2">Logout</a>
+    </p>
+  </header>
+
+  <!-- Main Section -->
+  <main class="relative z-10 flex flex-col items-center justify-center px-6 fade-in">
+
+    <h2 class="text-3xl font-semibold text-blue-800 mt-2 mb-4 animate-pulse">💡 Foot Ulcer Classifier</h2>
+    <p class="text-gray-600 mb-6 text-center max-w-md">
+      Upload an image of a foot to detect ulcer conditions using NeuroSole’s AI engine.
+    </p>
+
+    <!-- Upload box -->
+    <form method="POST" action="/predict" enctype="multipart/form-data" 
+          class="glass rounded-2xl p-6 w-full max-w-md text-center fade-in">
+      <input type="file" name="file" accept="image/*" required
+             class="w-full mb-4 border border-gray-300 rounded-lg p-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <button type="submit" 
+              class="bg-blue-600 glow hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition">
+        ⚡ Classify Image
+      </button>
+    </form>
+
+    <!-- Image Preview -->
+    {% if image_url %}
+      <div class="mt-8 fade-in">
+        <img src="{{ image_url }}" alt="Uploaded Image" 
+             class="rounded-xl shadow-lg max-w-md mx-auto border border-gray-200">
+      </div>
+    {% endif %}
+
+    <!-- Prediction Results -->
+    {% if probs %}
+      <div class="mt-8 bg-white glass border border-blue-100 rounded-2xl p-6 w-full max-w-xl mx-auto fade-in">
+        <h3 class="text-xl font-semibold text-blue-800 mb-4 text-center">🔍 Prediction Results</h3>
+
+        {% set order = ['Ulcered','Pre-Ulcer','Normal'] %}
+        {% for label in order %}
+          {% set pct = (probs[label] * 100) | round(2) %}
+          <div class="mb-3">
+            <div class="flex justify-between text-sm mb-1">
+              <span class="font-semibold">{{ label }}</span>
+              <span>{{ pct }}%</span>
+            </div>
+            <div class="h-2.5 w-full bg-gray-200 rounded-full overflow-hidden">
+              <div class="h-2.5 {% if label=='Ulcered' %}bg-red-500{% elif label=='Pre-Ulcer' %}bg-yellow-500{% else %}bg-green-500{% endif %} transition-all duration-500"
+                   style="width: {{ pct }}%;"></div>
+            </div>
+          </div>
+        {% endfor %}
+
+        <p class="mt-4 text-gray-700 text-center">
+          <span class="font-semibold">Most likely:</span> {{ result }}
+          {% if confidence %} ({{ confidence }}% confidence){% endif %}
+        </p>
+
+        <!-- Download Report -->
+        <form method="POST" action="/download_report" class="text-center">
+          <input type="hidden" name="result" value="{{ result }}">
+          <input type="hidden" name="confidence" value="{{ confidence }}">
+          <button type="submit" 
+                  class="mt-4 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg glow transition">
+            📄 Download Report
+          </button>
+        </form>
+      </div>
+    {% endif %}
+
+  </main>
+
+  <!-- Floating Chat Icon -->
+  <button onclick="toggleChat()" 
+  class="fixed bottom-6 right-6 bg-blue-600 text-white rounded-full w-14 h-14 text-2xl shadow-lg hover:bg-blue-700 glow"
+  style="z-index: 9999;">
+  💬
+</button>
+
+  <!-- Chat Window -->
+  <div id="chatContainer" 
+     class="hidden fixed bottom-24 right-6 w-80 bg-white border border-gray-300 rounded-xl shadow-2xl fade-in"
+     style="z-index: 9998;">
+  <div class="bg-blue-600 text-white font-semibold px-4 py-2 rounded-t-xl">NeuroSole Assistant 🤖</div>
+  <div id="chatBox" class="p-3 h-64 overflow-y-auto text-sm"></div>
+  <div class="border-t flex">
+    <input id="chatInput" class="flex-grow border-none outline-none px-3 py-2 text-gray-800" placeholder="Ask me something...">
+    <button onclick="sendMessage()" class="bg-blue-600 text-white px-4 py-2 rounded-r-xl">Send</button>
+  </div>
+</div>
+
+  <!-- Footer -->
+  <footer class="relative z-10 text-center text-sm text-gray-500 py-6 mt-10">
+    Made with ☕ and ❤️ by <span class="text-blue-700 font-semibold">Soumyo Mukherjee</span> | NeuroSole © 2025
+  </footer>
+
+  <script src="{{ url_for('static', filename='chat.js') }}"></script>
+  <script>
+    function toggleChat() {
+      document.getElementById('chatContainer').classList.toggle('hidden');
+    }
+
+    navigator.geolocation.getCurrentPosition(function(pos) {
+      fetch('/update_location', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          lat: pos.coords.latitude,
+          lon: pos.coords.longitude
+        })
+      });
+    });
+  </script>
+</body>
+</html>
